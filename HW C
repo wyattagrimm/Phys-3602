@@ -1,0 +1,56 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+#Constants
+d = 1.0  # distance between plates
+σ = 1.0  # charge density
+ϵ0 = 8.854e-12  # electric constant
+
+n_Q = 50
+x_Q_pos = np.linspace(-d, d, n_Q)
+x_Q_neg = np.linspace(-d, d, n_Q)
+y_Q_pos = np.zeros_like(x_Q_pos) - d/2
+y_Q_neg = np.zeros_like(x_Q_neg) + d/2
+
+lim = 5
+
+x, y = np.meshgrid(np.linspace(-lim,lim, 100), np.linspace(-lim,lim, 100))
+
+E_x = np.zeros_like(x)
+E_y = np.zeros_like(y)
+
+# Calculate Field Values
+for i in range(n_Q):
+    r = np.sqrt((x-x_Q_pos[i])**2 + (y-y_Q_pos[i])**2)
+    E_x += σ / (2 * ϵ0) * (x - x_Q_pos[i]) / r**3
+    E_y += σ / (2 * ϵ0) * (y - y_Q_pos[i]) / r**3
+
+for i in range(n_Q):
+    r = np.sqrt((x-x_Q_neg[i])**2 + (y-y_Q_neg[i])**2)
+    E_x -= σ / (2 * ϵ0) * (x - x_Q_neg[i]) / r**3
+    E_y -= σ / (2 * ϵ0) * (y - y_Q_neg[i]) / r**3
+
+# Display
+fig = plt.figure(figsize = (10,10))
+ax = fig.add_subplot(facecolor='k')
+
+ax.streamplot(x, y, E_x, E_y,
+              color = np.log(E_x**2 + E_y**2),
+              linewidth = 1,
+              cmap = 'turbo',
+              density = 4,
+              arrowstyle = 'fancy',
+              zorder = 1)
+
+ax.scatter(x_Q_pos, y_Q_pos, s=10, marker = ',', color='red')
+ax.scatter(x_Q_neg, y_Q_neg, s=10, marker = ',', color='blue')
+
+plt.suptitle('Parallel Plate Capacitor', fontsize=20)
+plt.title('Red Plate: Positive   Blue Plate: Negative', fontsize = 15)
+
+ax.set_xlabel('X Distance (mm)', fontsize=15)
+ax.set_ylabel('Y Distance (mm)', fontsize=15)
+
+ax.set_xlim(-lim,lim)
+ax.set_ylim(-lim,lim)
+plt.show()
